@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Academy Pro: Brainrot Linguistics</title>
+    <style>
+        :root {
+            --bg-dark: #07070e;
+            --panel-bg: #111122;
+            --accent-neon: #00ffcc;
+            --accent-purple: #9d4edd;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Navigation Bar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(17, 17, 34, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--accent-neon), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--accent-neon);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 2rem auto;
+            flex: 1;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Typography & Components */
+        h1, h2, h3 { margin-bottom: 1rem; }
+        p { color: var(--text-muted); line-height: 1.6; margin-bottom: 1.5rem; }
+
+        .btn {
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-neon));
+            color: #000;
+            font-weight: 700;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        /* Map UI */
+        .unit-section {
+            margin-bottom: 3rem;
+        }
+        .unit-header {
+            border-left: 4px solid var(--accent-purple);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .path-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .node {
+            background-color: #1a1a33;
+            border: 3px solid var(--text-muted);
+            width: 100%;
+            max-width: 450px;
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin: 0.8rem 0;
+            cursor: not-allowed;
+            opacity: 0.4;
+            transition: all 0.2s ease;
+        }
+
+        .node.unlocked { border-color: var(--accent-purple); opacity: 0.9; cursor: pointer; }
+        .node.unlocked:hover { transform: scale(1.02); box-shadow: 0 0 15px rgba(157,78,221,0.3); opacity:1;}
+        .node.completed { border-color: var(--success); opacity: 1; cursor: pointer; }
+
+        /* Lesson Layout */
+        .vocab-box {
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--accent-neon);
+            margin-bottom: 1.5rem;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .option-btn {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: var(--text-main);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .option-btn:hover { background: rgba(0, 255, 204, 0.08); border-color: var(--accent-neon); }
+        .option-btn.selected { border-color: var(--accent-purple); background: rgba(157,78,221,0.15); }
+        .option-btn.correct { border-color: var(--success) !important; background: rgba(16,185,129,0.15) !important; }
+        .option-btn.wrong { border-color: var(--error) !important; background: rgba(239,68,68,0.15) !important; }
+
+        /* Profile Elements */
+        .profile-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo" onclick="switchTab('map')">SIGMA ACADEMY</div>
+        <div class="nav-links">
+            <button id="nav-map" class="nav-btn active" onclick="switchTab('map')">Path Map</button>
+            <button id="nav-practice" class="nav-btn" onclick="switchTab('practice')">Practice</button>
+            <button id="nav-profile" class="nav-btn" onclick="switchTab('profile')">Profile</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div id="screen-pretest" class="card">
+            <h2>Diagnostic Evaluation</h2>
+            <p>Determine your entry alignment index within contemporary brainrot linguistics.</p>
+            <div id="pretest-body"></div>
+            <button id="btn-pretest-continue" class="btn" style="margin-top:1.5rem;" onclick="handlePretestContinue()">Continue</button>
+        </div>
+
+        <div id="screen-map" class="card hidden">
+            <h2 style="text-align:center; margin-bottom:2rem;">Your Structural Path Progression</h2>
+            <div id="map-tree"></div>
+        </div>
+
+        <div id="screen-lesson" class="card hidden">
+            <h2 id="lesson-header-title">Lesson</h2>
+            <div id="lesson-body"></div>
+            <button id="btn-lesson-continue" class="btn" style="margin-top:1.5rem;" onclick="handleLessonContinue()">Continue</button>
+        </div>
+
+        <div id="screen-practice" class="card hidden">
+            <h2>Infinite Practice Ring</h2>
+            <p>Review random operational syntax variables dynamically generated to secure retention.</p>
+            <div id="practice-body"></div>
+            <button id="btn-practice-continue" class="btn" style="margin-top:1.5rem;" onclick="handlePracticeContinue()">Verify Answer</button>
+        </div>
+
+        <div id="screen-profile" class="card hidden">
+            <h2>User Archetype Status Profile</h2>
+            <p>System identity structural metrics.</p>
+            <div class="profile-stat"><span>Current Rank Status:</span><strong id="prof-rank" style="color:var(--accent-neon);">Unranked</strong></div>
+            <div class="profile-stat"><span>Modules Mastered:</span><strong id="prof-completed">0 / 10</strong></div>
+            <div class="profile-stat"><span>Total Correct Tokens:</span><strong id="prof-score" style="color:var(--success);">0</strong></div>
+        </div>
+
+    </div>
+
+    <script>
+        // Data Schema Architecture (supporting 2 units, 5 lessons each = 10 total)
+        const curriculum = [
+            {
+                unitId: 1, unitName: "Unit 1: Basic Internet Dialect Syntax",
+                lessons: [
+                    { id: 0, name: "Lesson 1: Charm & Aura Dynamics (Learning Mode)", isReview: false, word: "Aura", def: "A dynamic credit score of coolness and unspoken magnetic prestige.", ex: "Tripping down the stairs costs exactly -500 aura points.", q: [
+                        { text: "What metric tracks your sudden social failures or cool entries?", opts: ["Aura", "Mewing", "Fanum Tax", "Skibidi"], ans: 0 },
+                        { text: "Which behavior causes an immediate subtraction of Aura?", opts: ["Failing a handshake", "Successful locking in", "Perfect eye contact", "Maxing out Rizz"], ans: 0 },
+                        { text: "Complete the statement: 'He entered the room with unmatchable ______.'", opts: ["Aura", "Skibidi", "Maranza", "Mewing"], ans: 0 },
+                        { text: "True or False: Losing a match always yields positive Aura points.", opts: ["True", "False"], ans: 1 },
+                        { text: "Aura is best described as an expression of:", opts: ["Presence and clout", "Feline communication", "Physical fast food taxes", "Total silence"], ans: 0 }
+                    ]},
+                    { id: 1, name: "Lesson 2: Core Variables Verification (Review Mode)", isReview: true, q: [
+                        { text: "What is the primary function of a Review Lesson?", opts: ["To learn brand-new rules", "To reinforce and test prior units", "To completely reset settings", "To clear your profile score"], ans: 1 },
+                        { text: "If an item is designated as 'Rizz', it indicates high levels of:", opts: ["Charisma", "Speed", "Confusion", "Anger"], ans: 0 },
+                        { text: "Which system element acts as the primary focus of Unit 1?", opts: ["Italian Slang", "Basic Vocabulary Syntax", "Advanced Architecture", "Database design"], ans: 1 },
+                        { text: "The term Rizz originates natively from shortening which standard word?", opts: ["Charisma", "Risky", "Resilience", "Riddle"], ans: 0 },
+                        { text: "Identify the word that scales with charismatic performance:", opts: ["Beta", "Rizz", "Tax", "Maranza"], ans: 1 }
+                    ]},
+                    { id: 2, name: "Lesson 3: Identification Formats (Review Mode)", isReview: true, q: [
+                        { text: "Which variable functions directly alongside Aura as a status index?", opts: ["Rizz", "Table", "Query", "Loop"], ans: 0 },
+                        { text: "A drop in personal social value is colloquially called:", opts: ["Negative Aura", "Positive Aura", "Sigma Grind", "Mewing"], ans: 0 },
+                        { text: "If a subject successfully charms an audience, they exhibit:", opts: ["Zero Rizz", "Immaculate Rizz", "Negative Rizz", "Mewing"], ans: 1 },
+                        { text: "Select the most optimal pairing:", opts: ["Rizz & Aura", "Mewing & Pizza", "Skibidi & Database", "Tax & Code"], opts: ["Rizz & Aura", "Mewing & Skibidi", "Tax & Maranza", "Aura & Skibidi"], ans: 0 },
+                        { text: "Review modules ensure what structural condition?", opts: ["Knowledge retention", "System failure", "Data loss", "Randomized resets"], ans: 0 }
+                    ]},
+                    { id: 3, name: "Lesson 4: Advanced Scenarios (Review Mode)", isReview: true, q: [
+                        { text: "Failing to hold open a door causes which consequence?", opts: ["Aura Loss", "Rizz Gain", "Mewing Activation", "Sigma Ascension"], ans: 0 },
+                        { text: "What parameter measures attraction capability?", opts: ["Rizz", "Fanum", "Maranza", "Tracksuit"], ans: 0 },
+                        { text: "When someone says 'W Rizz', the 'W' represents:", opts: ["Win / Good", "Wrong", "Waste", "Where"], ans: 0 },
+                        { text: "Which value is considered a negative status state?", opts: ["L Rizz", "W Rizz", "Infinite Aura", "Sigma Status"], ans: 0 },
+                        { text: "Unit 1 explicitly sets up which foundational rules?", opts: ["Basic Dialect Rules", "Advanced International Dialects", "None", "All of the above"], ans: 0 }
+                    ]},
+                    { id: 4, name: "Lesson 5: Unit 1 Milestone Verification (Review Mode)", isReview: true, q: [
+                        { text: "Passing Unit 1 unlocks access to what structural step?", opts: ["Unit 2", "Reset app", "Instant graduation", "Profile lockdown"], ans: 0 },
+                        { text: "An individual operating completely silently is likely executing a:", opts: ["Mewing streak", "Fanum Tax", "Maranza dance", "Skibidi event"], ans: 0 },
+                        { text: "Aura metrics can shift based on daily public behavior.", opts: ["True", "False"], ans: 0 },
+                        { text: "Which represents the highest form of social charisma?", opts: ["Unspoken Rizz", "Negative Aura", "Zero Rizz", "Standard speak"], ans: 0 },
+                        { text: "Select the foundational brainrot word definition match:", opts: ["Rizz - Charisma", "Aura - Skateboard", "Maranza - Hamburger", "Fanum - Silence"], ans: 0 }
+                    ]}
+                ]
+            },
+            {
+                unitId: 2, unitName: "Unit 2: Regional Adaptations & Italian Brainrot",
+                lessons: [
+                    { id: 5, name: "Lesson 6: Milanese Urban Formats (Learning Mode)", isReview: false, word: "Maranza", def: "An Italian subcultural archetype defined by tracksuits, specific entry behaviors, and localized street confidence.", ex: "He walked through Milano Centrale with complete Maranza energy.", q: [
+                        { text: "Which term describes the Italian urban subculture youth archetype?", opts: ["Maranza", "Sigma", "Fanum", "Rizz"], ans: 0 },
+                        { text: "Maranza fashion is heavily characterized by which apparel component?", opts: ["Tracksuits", "Formal suits", "Business casual", "Lab coats"], ans: 0 },
+                        { text: "In which European country did the Maranza classification originate?", opts: ["Italy", "France", "Spain", "Germany"], ans: 0 },
+                        { text: "True or False: Maranza is a term widely adapted into Italian internet brainrot circles.", opts: ["True", "False"], ans: 0 },
+                        { text: "A Maranza is typically found in which environment?", opts: ["Urban centers / Plazas", "Deep libraries", "Underwater research facilities", "Space stations"], ans: 0 }
+                    ]},
+                    { id: 6, name: "Lesson 7: Localized Slang Dynamics (Review Mode)", isReview: true, q: [
+                        { text: "What does Italian brainrot merge together?", opts: ["Global brainrot terms and Italian youth street culture", "Math and Chemistry", "Cooking recipes", "Historical text translations"], ans: 0 },
+                        { text: "Identify the primary city center associated with Maranza culture roots:", opts: ["Milan", "London", "Tokyo", "New York"], ans: 0 },
+                        { text: "Which item is matching the structural theme of Unit 2?", opts: ["International Adaptations", "Ancient Dialects", "Pure English Roots", "Coding Terms"], ans: 0 },
+                        { text: "If a subject wears a dynamic matching tracksuit style, they are rated as:", opts: ["Maranza alignment", "Skibidi framework", "Pure Aura loss", "Mewing master"], ans: 0 },
+                        { text: "Can global terms like 'Sigma' be combined with Italian slang contexts?", opts: ["Yes", "No"], ans: 0 }
+                    ]},
+                    { id: 7, name: "Lesson 8: The Logistics of Taxing (Review Mode)", isReview: true, q: [
+                        { text: "What term denotes the extraction of a food portion from a peer?", opts: ["Fanum Tax", "Mewing", "Aura Gain", "Sigma Loop"], ans: 0 },
+                        { text: "The Italian variant adaptation uses what translation root for 'taxing' something?", opts: ["Tassando", "Maranza", "Rizz", "Skibidi"], ans: 0 },
+                        { text: "If a peer steals your pizza slice, they are executing the:", opts: ["Fanum Tax", "Mewing Protocol", "Aura Shield", "Sigma Rule"], ans: 0 },
+                        { text: "Taxing parameters belong to which level of modern internet slang syntax?", opts: ["Advanced Global/Regional Exchange", "Primitive single letters", "None", "Dead languages"], ans: 0 },
+                        { text: "Is food the primary object targeted under a standard Fanum Tax?", opts: ["Yes", "No"], ans: 0 }
+                    ]},
+                    { id: 8, name: "Lesson 9: Advanced Compound Variations (Review Mode)", isReview: true, q: [
+                        { text: "Combining structural frameworks produces what slang variations?", opts: ["Compound brainrot expressions", "Syntax errors", "Database crashes", "Standard prose"], ans: 0 },
+                        { text: "Which expression represents a completely chaotic localized condition?", opts: ["Skibidi Maranza", "Normal Aura", "Standard Student", "Static Line"], ans: 0 },
+                        { text: "If an Italian slang user says someone is 'tassando' their style, they mean:", opts: ["Copying / Stealing their style", "Fixing their computer", "Giving them free points", "Ignoring them completely"], ans: 0 },
+                        { text: "Tracksuits are to Maranza as _______ is to facial structure training.", opts: ["Mewing", "Rizz", "Fanum", "Aura"], ans: 0 },
+                        { text: "Review lessons inside Unit 2 ensure verification of:", opts: ["Both global and Italian localized concepts", "Only basic English variables", "Math formulas", "Hardware architecture"], ans: 0 }
+                    ]},
+                    { id: 9, name: "Lesson 10: Ultimate Comprehensive Mastery (Review Mode)", isReview: true, q: [
+                        { text: "What is the final status rank designation achieved upon clearing all 10 modules?", opts: ["Ultimate Sigma Elite", "Novice", "Unranked", "Beta Variant"], ans: 0 },
+                        { text: "Which word represents the foundation of modern facial optimization slang?", opts: ["Mewing", "Aura", "Maranza", "Rizz"], ans: 1 },
+                        { text: "The core rule of internet dialect acquisition is:", opts: ["High contextual adaptivity", "Rigid dictionary dependence", "Zero evolution", "No usage in real life"], ans: 0 },
+                        { text: "Complete the master string sequence: Rizz, Aura, Mewing, and ______.", opts: ["Maranza", "Ancient Latin", "Standard Text", "Compiler"], ans: 0 },
+                        { text: "Clearing this final verification confirms you are:", opts: ["A certified linguistic master of modern brainrot", "Confused", "In need of resets", "A basic novice"], ans: 0 }
+                    ]}
+                ]
+            }
+        ];
+
+        // State Machine Engines
+        let userState = {
+            unlockedLevel: 0, 
+            score: 0,
+            pretestStep: 0,
+            pretestAnswers: [],
+            lessonRuntime: null // Track active lesson state
+        };
+
+        const pretestQuestions = [
+            { text: "Identify the phrase used to indicate structural personal charisma:", opts: ["Rizz", "Skibidi", "Mewing", "Tax"], ans: 0 },
+            { text: "What action is linked directly to establishing jawline aesthetics?", opts: ["Mewing", "Aura Exchange", "Maranza Phase", "Fanum Tax"], ans: 0 },
+            { text: "Which subcultural archetype is linked to tracksuits and Italian urban spaces?", opts: ["Maranza", "Sigma", "Alpha", "Giga"], ans: 0 }
+        ];
+
+        window.onload = function() {
+            initPretest();
+            updateProfileUI();
+        };
+
+        function switchTab(tab) {
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+            
+            document.getElementById(`nav-${tab}`).classList.add('active');
+            document.getElementById(`screen-${tab}`).classList.remove('hidden');
+            if (tab === 'map') renderMapTree();
+            if (tab === 'practice') loadPracticeQuestion();
+            updateProfileUI();
+        }
+
+        // Pretest State Machine Engine
+        function initPretest() {
+            userState.pretestStep = 0;
+            userState.pretestAnswers = [];
+            showPretestQuestion();
+        }
+
+        function showPretestQuestion() {
+            const currentQ = pretestQuestions[userState.pretestStep];
+            const body = document.getElementById('pretest-body');
+            body.innerHTML = `
+                <div style="font-size:1.2rem; margin-bottom:1rem; font-weight:600;">Question ${userState.pretestStep + 1} of ${pretestQuestions.length}:</div>
+                <p style="font-size:1.1rem; color:var(--text-main); font-weight:500;">${currentQ.text}</p>
+                <div class="options-grid">
+                    ${currentQ.opts.map((opt, idx) => `
+                        <button class="option-btn pretest-opt" onclick="selectPretestOpt(${idx})">${opt}</button>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('btn-pretest-continue').innerText = "Submit Answer";
+        }
+
+        let selectedOptTemp = null;
+        function selectPretestOpt(idx) {
+            selectedOptTemp = idx;
+            document.querySelectorAll('.pretest-opt').forEach((b, i) => {
+                b.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function handlePretestContinue() {
+            if (selectedOptTemp === null) {
+                alert("Please select a valid option framework parameters.");
+                return;
+            }
+            userState.pretestAnswers.push(selectedOptTemp);
+            selectedOptTemp = null;
+            userState.pretestStep++;
+
+            if (userState.pretestStep < pretestQuestions.length) {
+                showPretestQuestion();
+            } else {
+                // Check score
+                let correctCount = 0;
+                userState.pretestAnswers.forEach((ans, i) => {
+                    if (ans === pretestQuestions[i].ans) correctCount++;
+                });
+                
+                if (correctCount === pretestQuestions.length) {
+                    userState.unlockedLevel = 3; // Skips foundational variables
+                    alert(`Diagnostic Perfect Matrix Detected! Placement calibrated: Level 1-3 auto-bypassed. Starting at Lesson 4.`);
+                } else {
+                    userState.unlockedLevel = 0;
+                    alert("Diagnostic completed. Path matrix loaded at absolute foundations.");
+                }
+                document.getElementById('screen-pretest').classList.add('hidden');
+                switchTab('map');
+            }
+        }
+
+        // Map Tree Renderer Engine
+        function renderMapTree() {
+            const tree = document.getElementById('map-tree');
+            tree.innerHTML = '';
+
+            curriculum.forEach(unit => {
+                let unitHTML = `
+                    <div class="unit-section">
+                        <div class="unit-header">
+                            <h3>${unit.unitName}</h3>
+                        </div>
+                        <div class="path-container">
+                `;
+
+                unit.lessons.forEach(l => {
+                    let statusClass = '';
+                    if (l.id < userState.unlockedLevel) statusClass = 'completed';
+                    else if (l.id === userState.unlockedLevel) statusClass = 'unlocked';
+
+                    unitHTML += `
+                        <div class="node ${statusClass}" onclick="launchLesson(${l.id})">
+                            <div style="font-size:0.8rem; font-weight:700; color:var(--accent-neon); margin-bottom:0.2rem;">
+                                ${l.isReview ? 'REVIEW MODULE' : 'CORE SYSTEM LEARNING'}
+                            </div>
+                            <div style="font-size:1.1rem; font-weight:700; color:#fff;">${l.name}</div>
+                        </div>
+                    `;
+                });
+
+                unitHTML += `</div></div>`;
+                tree.innerHTML += unitHTML;
+            });
+        }
+
+        // Lesson State Machine Engine
+        function launchLesson(id) {
+            if (id > userState.unlockedLevel) return;
+            
+            // Search module structure flat matrix array map
+            let targetLesson = null;
+            curriculum.forEach(u => u.lessons.forEach(l => { if (l.id === id) targetLesson = l; }));
+            if (!targetLesson) return;
+
+            userState.lessonRuntime = {
+                lessonData: targetLesson,
+                step: 0, // step 0 = display lexical information card if learning mode, then questions
+                currentQuestionIndex: 0,
+                selectedOption: null,
+                isAnswerChecked: false
+            };
+
+            document.getElementById('screen-map').classList.add('hidden');
+            document.getElementById('screen-lesson').classList.remove('hidden');
+            runLessonLoop();
+        }
+
+        function runLessonLoop() {
+            const runtime = userState.lessonRuntime;
+            const body = document.getElementById('lesson-body');
+            const contBtn = document.getElementById('btn-lesson-continue');
+            document.getElementById('lesson-header-title').innerText = runtime.lessonData.name;
+
+            // Scenario 1: Learning Module introduction lexical parameters card view
+            if (!runtime.lessonData.isReview && runtime.step === 0) {
+                body.innerHTML = `
+                    <div class="vocab-box">
+                        <h3 style="color:var(--accent-neon); font-size:1.5rem; margin-bottom:0.5rem;">${runtime.lessonData.word}</h3>
+                        <p style="color:var(--text-main); font-weight:500; margin-bottom:0.8rem;"><strong>Definition:</strong> ${runtime.lessonData.def}</p>
+                        <p style="font-style:italic; color:var(--text-muted);"><strong>Runtime Example:</strong> "${runtime.lessonData.ex}"</p>
+                    </div>
+                    <p>Analyze structural vocabulary properties above. Click Continue below to execute the 5-item confirmation sub-quiz components.</p>
+                `;
+                contBtn.innerText = "Begin Sub-Quiz Components";
+                runtime.isAnswerChecked = true; // No answer check validation required for text screens
+                return;
+            }
+
+            // Scenario 2: Active question execution view
+            const qIndex = runtime.currentQuestionIndex;
+            const currentQ = runtime.lessonData.q[qIndex];
+
+            body.innerHTML = `
+                <div style="margin-bottom:0.5rem; color:var(--accent-purple); font-weight:700; font-size:0.9rem;">
+                    SUB-QUIZ VERIFICATION MODULE OBJECTIVE ${qIndex + 1} OF 5
+                </div>
+                <p style="font-size:1.2rem; color:var(--text-main); font-weight:500; margin-bottom:1.5rem;">${currentQ.text}</p>
+                <div class="options-grid">
+                    ${currentQ.opts.map((opt, idx) => `
+                        <button class="option-btn lesson-opt-btn" onclick="selectLessonOpt(${idx})">${opt}</button>
+                    `).join('')}
+                </div>
+            `;
+            contBtn.innerText = "Verify Metrics";
+            runtime.isAnswerChecked = false;
+        }
+
+        function selectLessonOpt(idx) {
+            if (userState.lessonRuntime.isAnswerChecked) return;
+            userState.lessonRuntime.selectedOption = idx;
+            document.querySelectorAll('.lesson-opt-btn').forEach((b, i) => {
+                b.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function handleLessonContinue() {
+            const runtime = userState.lessonRuntime;
+            const contBtn = document.getElementById('btn-lesson-continue');
+
+            // Handling introductory page transition parameter state
+            if (!runtime.lessonData.isReview && runtime.step === 0) {
+                runtime.step = 1;
+                runLessonLoop();
+                return;
+            }
+
+            // Question handling processing logic execution
+            if (!runtime.isAnswerChecked) {
+                if (runtime.selectedOption === null) {
+                    alert("System tracking prompt: Select target parameter variant option.");
+                    return;
+                }
+                
+                const qIndex = runtime.currentQuestionIndex;
+                const currentQ = runtime.lessonData.q[qIndex];
+                const btns = document.querySelectorAll('.lesson-opt-btn');
+
+                runtime.isAnswerChecked = true;
+
+                if (runtime.selectedOption === currentQ.ans) {
+                    btns[runtime.selectedOption].classList.add('correct');
+                    userState.score += 20; // Append database token points metrics
+                } else {
+                    btns[runtime.selectedOption].classList.add('wrong');
+                    btns[currentQ.ans].classList.add('correct');
+                }
+
+                contBtn.innerText = "Advance Next Sequence Step";
+            } else {
+                // Advance state processing parameter variables tracking logic
+                runtime.currentQuestionIndex++;
+                runtime.selectedOption = null;
+
+                if (runtime.currentQuestionIndex < 5) {
+                    runLessonLoop();
+                } else {
+                    // All 5 verification questions solved successfully matrix clearance routine
+                    alert(`Module metrics verified! Clearance completed.`);
+                    if (runtime.lessonData.id === userState.unlockedLevel) {
+                        userState.unlockedLevel++;
+                    }
+                    userState.lessonRuntime = null;
+                    document.getElementById('screen-lesson').classList.add('hidden');
+                    switchTab('map');
+                }
+            }
+        }
+
+        // Dynamic Practice Mode Engine
+        let activePracticeQ = null;
+        let practiceChecked = false;
+        let practiceSelected = null;
+
+        function loadPracticeQuestion() {
+            // Flatten all array items from database
+            let questionsPool = [];
+            curriculum.forEach(u => u.lessons.forEach(l => questionsPool.push(...l.q)));
+            
+            // Pull randomized items
+            activePracticeQ = questionsPool[Math.floor(Math.random() * questionsPool.length)];
+            practiceChecked = false;
+            practiceSelected = null;
+
+            const body = document.getElementById('practice-body');
+            body.innerHTML = `
+                <p style="font-size:1.2rem; color:var(--text-main); font-weight:500;">${activePracticeQ.text}</p>
+                <div class="options-grid">
+                    ${activePracticeQ.opts.map((opt, idx) => `
+                        <button class="option-btn practice-opt-btn" onclick="selectPracticeOpt(${idx})">${opt}</button>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('btn-practice-continue').innerText = "Verify Answer";
+        }
+
+        function selectPracticeOpt(idx) {
+            if (practiceChecked) return;
+            practiceSelected = idx;
+            document.querySelectorAll('.practice-opt-btn').forEach((b, i) => {
+                b.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function handlePracticeContinue() {
+            const button = document.getElementById('btn-practice-continue');
+            if (!practiceChecked) {
+                if (practiceSelected === null) {
+                    alert("Please choose a valid answer node variant option.");
+                    return;
+                }
+                practiceChecked = true;
+                const btns = document.querySelectorAll('.practice-opt-btn');
+
+                if (practiceSelected === activePracticeQ.ans) {
+                    btns[practiceSelected].classList.add('correct');
+                    userState.score += 10;
+                } else {
+                    btns[practiceSelected].classList.add('wrong');
+                    btns[activePracticeQ.ans].classList.add('correct');
+                }
+                button.innerText = "Generate Next Practice Node Element";
+            } else {
+                loadPracticeQuestion();
+            }
+        }
+
+        // Profile Metrics Interface Compiler Engine
+        function updateProfileUI() {
+            document.getElementById('prof-score').innerText = userState.score;
+            document.getElementById('prof-completed').innerText = `${userState.unlockedLevel} / 10`;
+
+            let rank = "Unranked Novice";
+            if (userState.unlockedLevel >= 10) rank = "Ultimate Giga Sigma Elite Master Supreme";
+            else if (userState.unlockedLevel >= 7) rank = "Advanced Linguistic Maranza Strategist";
+            else if (userState.unlockedLevel >= 4) rank = "Mid-Tier Rizz Technician";
+            else if (userState.unlockedLevel >= 1) rank = "Aura Trainee Apprentice";
+
+            document.getElementById('prof-rank').innerText = rank;
+        }
+    </script>
+</body>
+</html>
